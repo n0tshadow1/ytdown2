@@ -45,6 +45,7 @@ def download_video():
         url = data.get('url', '').strip()
         format_id = data.get('format_id')
         audio_only = data.get('audio_only', False)
+        file_format = data.get('file_format', 'mp4')
         
         if not url:
             return jsonify({'error': 'Please provide a valid URL'}), 400
@@ -59,25 +60,38 @@ def download_video():
             if d['status'] == 'downloading':
                 try:
                     percent = d.get('_percent_str', '0%').replace('%', '')
-                    download_progress[download_id]['progress'] = float(percent)
+                    if percent:
+                        download_progress[download_id]['progress'] = float(percent)
                     download_progress[download_id]['status'] = 'downloading'
-                except:
+                except (ValueError, TypeError):
                     pass
             elif d['status'] == 'finished':
                 download_progress[download_id]['progress'] = 100
                 download_progress[download_id]['status'] = 'finished'
                 download_progress[download_id]['filename'] = d['filename']
+            elif d['status'] == 'error':
+                download_progress[download_id]['status'] = 'error'
+                download_progress[download_id]['error'] = d.get('error', 'Unknown error')
         
         # Start download in background thread
         def download_thread():
             try:
-                result = downloader.download_video(url, format_id, audio_only, progress_hook)
-                download_progress[download_id].update(result)
+                result = downloader.download_video(url, format_id, audio_only, file_format, progress_hook)
+                if 'error' in result:
+                    download_progress[download_id]['status'] = 'error'
+                    download_progress[download_id]['error'] = result['error']
+                else:
+                    download_progress[download_id].update(result)
+                    if 'filename' in result:
+                        download_progress[download_id]['status'] = 'finished'
+                        download_progress[download_id]['progress'] = 100
             except Exception as e:
+                logging.error(f"Download thread error: {str(e)}")
                 download_progress[download_id]['error'] = str(e)
                 download_progress[download_id]['status'] = 'error'
         
         thread = threading.Thread(target=download_thread)
+        thread.daemon = True
         thread.start()
         
         return jsonify({'download_id': download_id})

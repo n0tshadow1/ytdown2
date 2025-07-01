@@ -96,7 +96,7 @@ class VideoDownloader:
             logging.error(f"Error extracting video info: {str(e)}")
             return {'error': f'Failed to extract video information: {str(e)}'}
     
-    def download_video(self, url, format_id=None, audio_only=False, progress_hook=None):
+    def download_video(self, url, format_id=None, audio_only=False, file_format=None, progress_hook=None):
         """Download video with specified format"""
         try:
             # Set download options
@@ -109,13 +109,21 @@ class VideoDownloader:
                 ydl_opts['progress_hooks'] = [progress_hook]
             
             # Handle audio-only downloads
-            if audio_only or (format_id and 'audio' in format_id):
-                ydl_opts['format'] = 'bestaudio/best'
-                ydl_opts['postprocessors'] = [{
-                    'key': 'FFmpegExtractAudio',
-                    'preferredcodec': 'mp3',
-                    'preferredquality': '192',
-                }]
+            if audio_only:
+                ydl_opts['format'] = format_id if format_id else 'bestaudio/best'
+                if file_format:
+                    ydl_opts['postprocessors'] = [{
+                        'key': 'FFmpegExtractAudio',
+                        'preferredcodec': file_format,
+                        'preferredquality': '192' if file_format == 'mp3' else 'best',
+                    }]
+            else:
+                # Handle video downloads with specific format conversion
+                if file_format and file_format != 'mp4':
+                    ydl_opts['postprocessors'] = [{
+                        'key': 'FFmpegVideoConvertor',
+                        'preferedformat': file_format,
+                    }]
             
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=True)
