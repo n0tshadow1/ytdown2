@@ -38,26 +38,40 @@ class VideoDownloader:
             if 'best[height<=' in requested_format_id:
                 try:
                     height = int(requested_format_id.split('<=')[1].split(']')[0])
+                    logging.info(f"Looking for formats <= {height}p from {len(available_formats)} total formats")
+                    
+                    # Debug: Print all formats with heights
+                    for fmt in available_formats:
+                        if fmt and fmt.get('height'):
+                            logging.info(f"Available: {fmt['format_id']} - {fmt['height']}p - {fmt.get('ext')} - vcodec: {fmt.get('vcodec')}")
+                    
                     suitable_formats = [
                         f for f in available_formats 
                         if f and f.get('height') and f.get('height') <= height and f.get('vcodec') != 'none'
                     ]
+                    
+                    logging.info(f"Found {len(suitable_formats)} suitable formats for {height}p")
+                    
                     if suitable_formats:
                         # Sort by quality and return the best one
                         suitable_formats.sort(key=lambda x: x.get('height', 0) if x else 0, reverse=True)
-                        logging.info(f"Found format for {height}p: {suitable_formats[0]['format_id']} (actual: {suitable_formats[0]['height']}p)")
-                        return suitable_formats[0]['format_id']
+                        selected = suitable_formats[0]
+                        logging.info(f"Selected format for {height}p: {selected['format_id']} (actual: {selected['height']}p)")
+                        return selected['format_id']
                     else:
                         # If no suitable format found, get the lowest quality available
                         video_formats = [f for f in available_formats if f and f.get('height') and f.get('vcodec') != 'none']
                         if video_formats:
                             video_formats.sort(key=lambda x: x.get('height', 0) if x else 0)
-                            logging.info(f"No format <= {height}p found, using lowest: {video_formats[0]['format_id']} (actual: {video_formats[0]['height']}p)")
-                            return video_formats[0]['format_id']
-                except (ValueError, IndexError):
+                            selected = video_formats[0]
+                            logging.info(f"No format <= {height}p found, using lowest: {selected['format_id']} (actual: {selected['height']}p)")
+                            return selected['format_id']
+                except (ValueError, IndexError) as e:
+                    logging.error(f"Error parsing format selector: {e}")
                     pass
         
         # Fallback to best available format
+        logging.warning(f"No suitable format found for {requested_format_id}, using 'best'")
         return 'best'
         
     def get_video_info(self, url):
@@ -170,6 +184,11 @@ class VideoDownloader:
                 selected_format = self._select_best_format(info_result.get('formats', []), format_id, False)
                 
             logging.info(f"Selected format: {selected_format} for requested: {format_id}")
+            
+            # If we still have a generic selector, just use 'best'
+            if selected_format and 'best[height<=' in selected_format:
+                logging.warning(f"Generic selector returned, using 'best' instead of {selected_format}")
+                selected_format = 'best'
             
             # Set download options
             ydl_opts = {
