@@ -481,6 +481,24 @@ class VideoDownloader {
         
         downloadLink.href = `/download_file/${this.currentDownloadId}`;
         completeDiv.style.display = 'block';
+        
+        // Automatically trigger the browser download
+        this.triggerFileDownload();
+    }
+    
+    triggerFileDownload() {
+        // Create a temporary anchor element to trigger download
+        const link = document.createElement('a');
+        link.href = `/download_file/${this.currentDownloadId}`;
+        link.download = ''; // This will use the filename from server
+        link.style.display = 'none';
+        
+        // Add to DOM, click, and remove
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        console.log('Download triggered automatically');
     }
 
     // Utility functions
