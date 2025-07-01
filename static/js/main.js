@@ -24,15 +24,27 @@ class VideoDownloader {
             });
         });
 
-        // Simple click handler for all selections
+        // Enhanced click handler for all selections
         document.addEventListener('click', (e) => {
-            const simpleOption = e.target.closest('.simple-option');
-            const qualityOption = e.target.closest('.quality-option');
+            const target = e.target.closest('.simple-option, .quality-option, .file-format-option');
             
-            if (simpleOption) {
-                this.handleSimpleSelection(simpleOption);
-            } else if (qualityOption) {
-                this.handleQualitySelection(qualityOption);
+            if (!target) return;
+            
+            console.log('Click detected on:', target, 'Classes:', target.className);
+            
+            // Handle format selection (step 1)
+            if (target.dataset.step === 'format') {
+                this.handleSimpleSelection(target);
+            }
+            // Handle quality selection (step 2) - check if it's a quality option but not a file format
+            else if (target.classList.contains('quality-option') && !target.classList.contains('file-format-option')) {
+                console.log('Handling quality selection');
+                this.handleQualitySelection(target);
+            }
+            // Handle file format selection (step 3)
+            else if (target.classList.contains('file-format-option')) {
+                console.log('Handling file format selection');
+                this.handleQualitySelection(target);
             }
         });
 
@@ -173,8 +185,14 @@ class VideoDownloader {
     }
     
     showQualityOptions() {
+        console.log('showQualityOptions called for format:', this.selectedFormat);
         const qualitySection = document.getElementById('quality-section');
         const qualityOptions = document.getElementById('quality-options');
+        
+        if (!qualitySection || !qualityOptions) {
+            console.error('Quality section elements not found');
+            return;
+        }
         
         qualityOptions.innerHTML = '';
         
@@ -195,6 +213,7 @@ class VideoDownloader {
                 option.className = 'quality-option simple-option';
                 option.dataset.quality = quality.formatId;
                 option.textContent = quality.label;
+                console.log('Creating quality option:', quality.label, 'with classes:', option.className);
                 qualityOptions.appendChild(option);
             });
         } else if (this.selectedFormat === 'audio') {
