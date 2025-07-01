@@ -45,24 +45,24 @@ class VideoDownloader:
                         if fmt and fmt.get('height'):
                             logging.info(f"Available: {fmt['format_id']} - {fmt['height']}p - {fmt.get('ext')} - vcodec: {fmt.get('vcodec')}")
                     
-                    suitable_formats = [
-                        f for f in available_formats 
-                        if f and f.get('height') and f.get('height') <= height and f.get('vcodec') != 'none'
-                    ]
+                    # Find video formats only
+                    video_formats = [f for f in available_formats if f and f.get('height') and f.get('vcodec') and f.get('vcodec') != 'none']
                     
-                    logging.info(f"Found {len(suitable_formats)} suitable formats for {height}p")
+                    # Find formats at or below target height
+                    suitable_formats = [f for f in video_formats if f.get('height') <= height]
+                    
+                    logging.info(f"Found {len(suitable_formats)} suitable formats for {height}p from {len(video_formats)} video formats")
                     
                     if suitable_formats:
-                        # Sort by quality and return the best one
-                        suitable_formats.sort(key=lambda x: x.get('height', 0) if x else 0, reverse=True)
+                        # Sort by quality and return the best one within limit
+                        suitable_formats.sort(key=lambda x: x.get('height', 0), reverse=True)
                         selected = suitable_formats[0]
                         logging.info(f"Selected format for {height}p: {selected['format_id']} (actual: {selected['height']}p)")
                         return selected['format_id']
                     else:
                         # If no suitable format found, get the lowest quality available
-                        video_formats = [f for f in available_formats if f and f.get('height') and f.get('vcodec') != 'none']
                         if video_formats:
-                            video_formats.sort(key=lambda x: x.get('height', 0) if x else 0)
+                            video_formats.sort(key=lambda x: x.get('height', 0))
                             selected = video_formats[0]
                             logging.info(f"No format <= {height}p found, using lowest: {selected['format_id']} (actual: {selected['height']}p)")
                             return selected['format_id']
