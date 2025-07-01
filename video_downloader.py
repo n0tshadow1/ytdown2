@@ -7,6 +7,50 @@ from urllib.parse import urlparse
 class VideoDownloader:
     def __init__(self):
         self.temp_dir = tempfile.mkdtemp()
+    
+    def _select_best_format(self, available_formats, requested_format_id, audio_only):
+        """Select the best available format based on user preference"""
+        if not available_formats:
+            return 'best'
+        
+        # If audio only requested
+        if audio_only:
+            audio_formats = [f for f in available_formats if f and f.get('acodec') and f.get('acodec') != 'none']
+            if audio_formats:
+                if requested_format_id:
+                    # Try to find the requested format
+                    for fmt in audio_formats:
+                        if fmt.get('format_id') == requested_format_id:
+                            return requested_format_id
+                # Fallback to best audio
+                return 'bestaudio/best'
+            return 'best'
+        
+        # For video downloads
+        if requested_format_id:
+            # Check if the requested format is available
+            for fmt in available_formats:
+                if fmt and fmt.get('format_id') == requested_format_id:
+                    return requested_format_id
+            
+            # If requested format is a generic selector (like best[height<=1080])
+            # Try to find a suitable alternative
+            if 'best[height<=' in requested_format_id:
+                try:
+                    height = int(requested_format_id.split('<=')[1].split(']')[0])
+                    suitable_formats = [
+                        f for f in available_formats 
+                        if f and f.get('height') and f.get('height') <= height and f.get('vcodec') != 'none'
+                    ]
+                    if suitable_formats:
+                        # Sort by quality and return the best one
+                        suitable_formats.sort(key=lambda x: x.get('height', 0) if x else 0, reverse=True)
+                        return suitable_formats[0]['format_id']
+                except (ValueError, IndexError):
+                    pass
+        
+        # Fallback to best available format
+        return 'best'
         
     def get_video_info(self, url):
         """Extract video information without downloading"""
@@ -100,13 +144,36 @@ class VideoDownloader:
             logging.error(f"Error extracting video info: {str(e)}")
             return {'error': f'Failed to extract video information: {str(e)}'}
     
+
+    
     def download_video(self, url, format_id=None, audio_only=False, file_format=None, progress_hook=None):
-        """Download video with specified format"""
+        """Download video with specified format"""  
         try:
+            # Use intelligent format selection with fallbacks
+            if audio_only:
+                selected_format = format_id if format_id else 'bestaudio/best'
+            else:
+                # For video, use the requested format with fallbacks
+                if format_id and 'best[height<=' in format_id:
+                    # Extract height and create fallback chain
+                    try:
+                        height = int(format_id.split('<=')[1].split(']')[0])
+                        fallback_formats = [
+                            format_id,  # Original request
+                            f'best[height<={height}]',  # Ensure format consistency
+                            f'best[height<={max(480, height//2)}]',  # Lower quality fallback
+                            'best',  # Ultimate fallback
+                        ]
+                        selected_format = '/'.join(fallback_formats)
+                    except (ValueError, IndexError):
+                        selected_format = format_id if format_id else 'best'
+                else:
+                    selected_format = format_id if format_id else 'best'
+            
             # Set download options
             ydl_opts = {
                 'outtmpl': os.path.join(self.temp_dir, '%(title)s.%(ext)s'),
-                'format': format_id if format_id else 'best',
+                'format': selected_format,
             }
             
             if progress_hook:
@@ -114,8 +181,7 @@ class VideoDownloader:
             
             # Handle audio-only downloads
             if audio_only:
-                ydl_opts['format'] = format_id if format_id else 'bestaudio/best'
-                if file_format:
+                if file_format and file_format != 'mp3':
                     ydl_opts['postprocessors'] = [{
                         'key': 'FFmpegExtractAudio',
                         'preferredcodec': file_format,
