@@ -200,10 +200,10 @@
 
                 <!-- Loading Indicator -->
                 <div id="loading" class="text-center py-4" style="display: none;">
-                    <div class="spinner-border text-primary" role="status">
+                    <div class="spinner-border text-primary pulse" role="status">
                         <span class="visually-hidden">Loading...</span>
                     </div>
-                    <p class="mt-2 text-muted">Analyzing video...</p>
+                    <p class="mt-2" style="color: rgba(255, 255, 255, 0.7);">Analyzing video...</p>
                 </div>
 
                 <!-- Error Display -->
@@ -216,7 +216,7 @@
                 <div id="video-info" style="display: none;">
                     <div class="row">
                         <div class="col-md-4">
-                            <img id="video-thumbnail" class="img-fluid rounded" alt="Video Thumbnail">
+                            <img id="video-thumbnail" class="img-fluid rounded floating" alt="Video Thumbnail">
                         </div>
                         <div class="col-md-8">
                             <h4 id="video-title"></h4>
@@ -235,28 +235,62 @@
                         </div>
                     </div>
 
-                    <hr>
+                    <hr style="border-color: rgba(255, 255, 255, 0.2);">
 
                     <!-- Download Options -->
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="format-select" class="form-label">Format & Quality</label>
-                                <select class="form-select" id="format-select">
-                                    <option value="">Select format and quality...</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">&nbsp;</label>
-                                <div>
-                                    <button class="btn btn-success" id="download-btn" disabled>
-                                        <i class="fas fa-download me-2"></i>
-                                        Download
-                                    </button>
+                    <div class="download-options">
+                        <h5 style="color: white; margin-bottom: 1.5rem;">
+                            <i class="fas fa-cog me-2"></i>
+                            Download Options
+                        </h5>
+                        
+                        <!-- Format Selection -->
+                        <div class="mb-4">
+                            <h6 style="color: rgba(255, 255, 255, 0.9); margin-bottom: 1rem;">Choose Format</h6>
+                            <div class="format-grid">
+                                <div class="format-option" data-format="video">
+                                    <h6><i class="fas fa-video me-2"></i>Video</h6>
+                                    <p>Download video with audio</p>
+                                </div>
+                                <div class="format-option" data-format="audio">
+                                    <h6><i class="fas fa-music me-2"></i>Audio Only</h6>
+                                    <p>Extract audio as MP3</p>
                                 </div>
                             </div>
+                        </div>
+
+                        <!-- Quality Selection -->
+                        <div id="quality-section" style="display: none;">
+                            <div class="quality-selector">
+                                <h6 style="color: rgba(255, 255, 255, 0.9);">
+                                    <i class="fas fa-sliders-h me-2"></i>
+                                    Select Quality
+                                </h6>
+                                <div class="quality-grid" id="quality-options">
+                                    <!-- Quality options will be populated here -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- File Format Selection -->
+                        <div id="file-format-section" style="display: none;">
+                            <div class="quality-selector">
+                                <h6 style="color: rgba(255, 255, 255, 0.9);">
+                                    <i class="fas fa-file me-2"></i>
+                                    File Format
+                                </h6>
+                                <div class="quality-grid" id="file-format-options">
+                                    <!-- File format options will be populated here -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Download Button -->
+                        <div class="text-center mt-4">
+                            <button class="btn btn-success btn-lg" id="download-btn" disabled>
+                                <i class="fas fa-download me-2"></i>
+                                Download Now
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -273,7 +307,7 @@
                             0%
                         </div>
                     </div>
-                    <p id="download-status" class="text-muted">Preparing download...</p>
+                    <p id="download-status">Preparing download...</p>
                     <div id="download-complete" style="display: none;">
                         <div class="alert alert-success">
                             <i class="fas fa-check-circle me-2"></i>
@@ -288,99 +322,89 @@
             </div>
         </div>
 
-        <!-- Supported Platforms -->
-        <div class="card mt-4">
-            <div class="card-header">
-                <h5 class="card-title mb-0">
-                    <i class="fas fa-globe me-2"></i>
-                    Supported Platforms
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="row text-center">
-                    <div class="col-md-3 col-6 mb-3">
-                        <i class="fab fa-youtube fa-2x text-danger"></i>
-                        <p class="mt-2 mb-0">YouTube</p>
-                    </div>
-                    <div class="col-md-3 col-6 mb-3">
-                        <i class="fab fa-instagram fa-2x text-primary"></i>
-                        <p class="mt-2 mb-0">Instagram</p>
-                    </div>
-                    <div class="col-md-3 col-6 mb-3">
-                        <i class="fab fa-facebook fa-2x text-info"></i>
-                        <p class="mt-2 mb-0">Facebook</p>
-                    </div>
-                    <div class="col-md-3 col-6 mb-3">
-                        <i class="fab fa-twitter fa-2x text-info"></i>
-                        <p class="mt-2 mb-0">Twitter</p>
-                    </div>
-                </div>
-                <div class="row text-center">
-                    <div class="col-md-3 col-6 mb-3">
-                        <i class="fab fa-tiktok fa-2x"></i>
-                        <p class="mt-2 mb-0">TikTok</p>
-                    </div>
-                    <div class="col-md-3 col-6 mb-3">
-                        <i class="fab fa-vimeo fa-2x text-info"></i>
-                        <p class="mt-2 mb-0">Vimeo</p>
-                    </div>
-                    <div class="col-md-3 col-6 mb-3">
-                        <i class="fas fa-play fa-2x text-warning"></i>
-                        <p class="mt-2 mb-0">Dailymotion</p>
-                    </div>
-                    <div class="col-md-3 col-6 mb-3">
-                        <i class="fas fa-video fa-2x text-secondary"></i>
-                        <p class="mt-2 mb-0">Many More</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Features -->
-        <div class="card mt-4">
+        <!-- Features Card -->
+        <div class="card">
             <div class="card-header">
                 <h5 class="card-title mb-0">
                     <i class="fas fa-star me-2"></i>
-                    Features
+                    Features & Capabilities
                 </h5>
             </div>
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-6">
-                        <ul class="list-unstyled">
-                            <li class="mb-2">
-                                <i class="fas fa-check text-success me-2"></i>
-                                Multiple video formats (MP4, WebM, 3GP)
-                            </li>
-                            <li class="mb-2">
-                                <i class="fas fa-check text-success me-2"></i>
-                                Audio extraction (MP3, M4A, OGG)
-                            </li>
-                            <li class="mb-2">
-                                <i class="fas fa-check text-success me-2"></i>
-                                Various quality options (144p to 4K)
-                            </li>
-                        </ul>
+                        <div class="feature-item mb-3">
+                            <i class="fas fa-video text-success me-3"></i>
+                            <div>
+                                <h6 style="color: white; margin-bottom: 0.5rem;">Multiple Video Formats</h6>
+                                <p style="color: rgba(255, 255, 255, 0.7); margin: 0; font-size: 0.9rem;">
+                                    MP4, WebM, 3GP, AVI, MKV and more
+                                </p>
+                            </div>
+                        </div>
+                        <div class="feature-item mb-3">
+                            <i class="fas fa-music text-info me-3"></i>
+                            <div>
+                                <h6 style="color: white; margin-bottom: 0.5rem;">Audio Extraction</h6>
+                                <p style="color: rgba(255, 255, 255, 0.7); margin: 0; font-size: 0.9rem;">
+                                    MP3, M4A, OGG, WAV formats
+                                </p>
+                            </div>
+                        </div>
+                        <div class="feature-item mb-3">
+                            <i class="fas fa-expand-arrows-alt text-warning me-3"></i>
+                            <div>
+                                <h6 style="color: white; margin-bottom: 0.5rem;">All Resolutions</h6>
+                                <p style="color: rgba(255, 255, 255, 0.7); margin: 0; font-size: 0.9rem;">
+                                    144p to 4K (2160p) and beyond
+                                </p>
+                            </div>
+                        </div>
                     </div>
                     <div class="col-md-6">
-                        <ul class="list-unstyled">
-                            <li class="mb-2">
-                                <i class="fas fa-check text-success me-2"></i>
-                                Fast download speeds
-                            </li>
-                            <li class="mb-2">
-                                <i class="fas fa-check text-success me-2"></i>
-                                Mobile-friendly interface
-                            </li>
-                            <li class="mb-2">
-                                <i class="fas fa-check text-success me-2"></i>
-                                No registration required
-                            </li>
-                        </ul>
+                        <div class="feature-item mb-3">
+                            <i class="fas fa-bolt text-primary me-3"></i>
+                            <div>
+                                <h6 style="color: white; margin-bottom: 0.5rem;">Fast Downloads</h6>
+                                <p style="color: rgba(255, 255, 255, 0.7); margin: 0; font-size: 0.9rem;">
+                                    Optimized for maximum speed
+                                </p>
+                            </div>
+                        </div>
+                        <div class="feature-item mb-3">
+                            <i class="fas fa-mobile-alt text-danger me-3"></i>
+                            <div>
+                                <h6 style="color: white; margin-bottom: 0.5rem;">Mobile Friendly</h6>
+                                <p style="color: rgba(255, 255, 255, 0.7); margin: 0; font-size: 0.9rem;">
+                                    Works perfectly on all devices
+                                </p>
+                            </div>
+                        </div>
+                        <div class="feature-item mb-3">
+                            <i class="fas fa-shield-alt text-secondary me-3"></i>
+                            <div>
+                                <h6 style="color: white; margin-bottom: 0.5rem;">Safe & Secure</h6>
+                                <p style="color: rgba(255, 255, 255, 0.7); margin: 0; font-size: 0.9rem;">
+                                    No registration or personal data required
+                                </p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .feature-item {
+        display: flex;
+        align-items: flex-start;
+    }
+    
+    .feature-item i {
+        font-size: 1.25rem;
+        margin-top: 0.25rem;
+    }
+</style>
 {% endblock %}
