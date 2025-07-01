@@ -133,13 +133,19 @@ Preferred communication style: Simple, everyday language.
 - Improved file finding logic to handle special characters in filenames
 - Enhanced format selection to avoid unnecessary conversions
 - Added intelligent format fallbacks for better compatibility
+- **MAJOR FIX**: Resolved quality selection issue where all downloads defaulted to 360p
+- Updated format selection logic to use raw yt-dlp format data for accurate quality matching
+- Added specific format ID selection based on available video formats
+- Improved format sorting by height and bitrate for better quality control
+- Added "Playlist coming soon" badge next to YTdown heading
 
 ### Current Status
 - Video analysis working for YouTube, Instagram, Facebook
-- Quality selection interface fully functional
-- Download process working with MP4, WebM, MKV formats
+- Quality selection interface fully functional and now respects user-selected quality
+- Download process working with MP4, WebM, MKV, AVI formats
 - Automatic file download to user's device implemented
-- Format conversion limited to well-supported codecs
+- Format conversion working for multiple output formats
+- Quality selection now properly downloads 480p, 720p, 1080p as selected
 
 ## Changelog
 
