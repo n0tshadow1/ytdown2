@@ -407,4 +407,35 @@
         margin-top: 0.25rem;
     }
 </style>
+
+<script>
+// Debug function to test if video analysis is working
+function testAnalysis() {
+    console.log('Testing video analysis...');
+    const testUrl = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
+    fetch('/get_video_info', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url: testUrl })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Test analysis result:', data);
+    })
+    .catch(error => {
+        console.error('Test analysis error:', error);
+    });
+}
+
+// Add test button for debugging
+window.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        console.log('Page loaded, adding debug test...');
+        // You can call testAnalysis() in console to test
+        window.testAnalysis = testAnalysis;
+    }, 1000);
+});
+</script>
 {% endblock %}

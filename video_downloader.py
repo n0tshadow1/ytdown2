@@ -15,18 +15,22 @@ class VideoDownloader:
                 'quiet': True,
                 'no_warnings': True,
                 'extract_flat': False,
+                'socket_timeout': 30,
             }
             
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=False)
                 
+                if not info:
+                    return {'error': 'Could not extract video information'}
+                
                 # Extract relevant information
                 video_info = {
-                    'title': info.get('title', 'Unknown Title'),
-                    'duration': info.get('duration', 0),
-                    'thumbnail': info.get('thumbnail', ''),
-                    'uploader': info.get('uploader', 'Unknown'),
-                    'view_count': info.get('view_count', 0),
+                    'title': info.get('title', 'Unknown Title') if info else 'Unknown Title',
+                    'duration': info.get('duration', 0) if info else 0,
+                    'thumbnail': info.get('thumbnail', '') if info else '',
+                    'uploader': info.get('uploader', 'Unknown') if info else 'Unknown',
+                    'view_count': info.get('view_count', 0) if info else 0,
                     'formats': []
                 }
                 

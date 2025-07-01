@@ -42,7 +42,10 @@ class VideoDownloader {
 
     showLoading(show = true) {
         document.getElementById('loading').style.display = show ? 'block' : 'none';
-        document.getElementById('analyze-btn').disabled = show;
+        // Disable all analyze buttons
+        document.querySelectorAll('.analyze-btn').forEach(btn => {
+            btn.disabled = show;
+        });
     }
 
     showError(message) {
@@ -308,6 +311,8 @@ class VideoDownloader {
     }
 
     async analyzeVideo(url) {
+        console.log('Analyzing video URL:', url);
+        
         if (!url) {
             this.showError('Please enter a valid URL');
             return;
@@ -315,8 +320,11 @@ class VideoDownloader {
 
         this.showLoading(true);
         this.hideVideoInfo();
+        this.hideError();
 
         try {
+            console.log('Sending request to /get_video_info');
+            
             const response = await fetch('/get_video_info', {
                 method: 'POST',
                 headers: {
@@ -325,15 +333,25 @@ class VideoDownloader {
                 body: JSON.stringify({ url: url })
             });
 
-            const data = await response.json();
-
+            console.log('Response status:', response.status);
+            
             if (!response.ok) {
-                throw new Error(data.error || 'Failed to analyze video');
+                const errorText = await response.text();
+                console.error('Response error:', errorText);
+                throw new Error(`Server error: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log('Video data received:', data);
+
+            if (data.error) {
+                throw new Error(data.error);
             }
 
             this.showVideoInfo(data);
         } catch (error) {
-            this.showError(error.message);
+            console.error('Analysis error:', error);
+            this.showError(error.message || 'Failed to analyze video. Please check the URL and try again.');
         } finally {
             this.showLoading(false);
         }
@@ -462,7 +480,18 @@ class VideoDownloader {
 
 // Initialize the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    new VideoDownloader();
+    try {
+        new VideoDownloader();
+        console.log('VideoDownloader initialized successfully');
+    } catch (error) {
+        console.error('Error initializing VideoDownloader:', error);
+    }
+});
+
+// Handle unhandled promise rejections
+window.addEventListener('unhandledrejection', (event) => {
+    console.error('Unhandled promise rejection:', event.reason);
+    event.preventDefault();
 });
 
 // Handle page navigation

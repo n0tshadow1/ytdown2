@@ -22,20 +22,27 @@ def index():
 @app.route('/get_video_info', methods=['POST'])
 def get_video_info():
     try:
-        url = request.json.get('url', '').strip()
+        if not request.json:
+            return jsonify({'error': 'No JSON data provided'}), 400
+            
+        url = request.json.get('url', '').strip() if request.json else ''
         if not url:
             return jsonify({'error': 'Please provide a valid URL'}), 400
+        
+        logging.info(f"Analyzing URL: {url}")
         
         downloader = VideoDownloader()
         video_info = downloader.get_video_info(url)
         
         if 'error' in video_info:
+            logging.error(f"Video info error: {video_info['error']}")
             return jsonify(video_info), 400
         
+        logging.info(f"Video info retrieved successfully for: {video_info.get('title', 'Unknown')}")
         return jsonify(video_info)
     
     except Exception as e:
-        logging.error(f"Error getting video info: {str(e)}")
+        logging.error(f"Error getting video info: {str(e)}", exc_info=True)
         return jsonify({'error': f'Failed to get video information: {str(e)}'}), 500
 
 @app.route('/download_video', methods=['POST'])
