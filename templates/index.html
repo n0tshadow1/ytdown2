@@ -244,44 +244,42 @@
                             Download Options
                         </h5>
                         
-                        <!-- Format Selection -->
+                        <!-- Step 1: Format Selection -->
                         <div class="mb-4">
-                            <h6 style="color: rgba(255, 255, 255, 0.9); margin-bottom: 1rem;">Choose Format</h6>
-                            <div class="format-grid">
-                                <div class="format-option" data-format="video">
-                                    <h6><i class="fas fa-video me-2"></i>Video</h6>
-                                    <p>Download video with audio</p>
+                            <h6 style="color: rgba(255, 255, 255, 0.9); margin-bottom: 1rem;">
+                                <span class="badge bg-primary me-2">1</span>Choose Format Type
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-6 mb-2">
+                                    <div class="simple-option" data-step="format" data-value="video">
+                                        <i class="fas fa-video me-2"></i>Video
+                                    </div>
                                 </div>
-                                <div class="format-option" data-format="audio">
-                                    <h6><i class="fas fa-music me-2"></i>Audio Only</h6>
-                                    <p>Extract audio as MP3</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Quality Selection -->
-                        <div id="quality-section" style="display: none;">
-                            <div class="quality-selector">
-                                <h6 style="color: rgba(255, 255, 255, 0.9);">
-                                    <i class="fas fa-sliders-h me-2"></i>
-                                    Select Quality
-                                </h6>
-                                <div class="quality-grid" id="quality-options">
-                                    <!-- Quality options will be populated here -->
+                                <div class="col-md-6 mb-2">
+                                    <div class="simple-option" data-step="format" data-value="audio">
+                                        <i class="fas fa-music me-2"></i>Audio Only
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- File Format Selection -->
-                        <div id="file-format-section" style="display: none;">
-                            <div class="quality-selector">
-                                <h6 style="color: rgba(255, 255, 255, 0.9);">
-                                    <i class="fas fa-file me-2"></i>
-                                    File Format
-                                </h6>
-                                <div class="quality-grid" id="file-format-options">
-                                    <!-- File format options will be populated here -->
-                                </div>
+                        <!-- Step 2: Quality Selection -->
+                        <div id="quality-section" style="display: none;" class="mb-4">
+                            <h6 style="color: rgba(255, 255, 255, 0.9); margin-bottom: 1rem;">
+                                <span class="badge bg-success me-2">2</span>Select Quality
+                            </h6>
+                            <div class="quality-simple-grid" id="quality-options">
+                                <!-- Quality options will be populated here -->
+                            </div>
+                        </div>
+
+                        <!-- Step 3: File Format Selection -->
+                        <div id="file-format-section" style="display: none;" class="mb-4">
+                            <h6 style="color: rgba(255, 255, 255, 0.9); margin-bottom: 1rem;">
+                                <span class="badge bg-warning me-2">3</span>Choose File Format
+                            </h6>
+                            <div class="quality-simple-grid" id="file-format-options">
+                                <!-- File format options will be populated here -->
                             </div>
                         </div>
 
@@ -291,6 +289,9 @@
                                 <i class="fas fa-download me-2"></i>
                                 Download Now
                             </button>
+                            <div id="selection-status" class="mt-2" style="color: rgba(255, 255, 255, 0.6); font-size: 0.85rem;">
+                                Complete all 3 steps above to enable download
+                            </div>
                         </div>
                     </div>
                 </div>

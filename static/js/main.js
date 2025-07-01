@@ -1,4 +1,4 @@
-// Enhanced Video Downloader JavaScript functionality
+// YTdown Simple Video Downloader
 class VideoDownloader {
     constructor() {
         this.currentDownloadId = null;
@@ -15,7 +15,7 @@ class VideoDownloader {
     }
 
     bindEvents() {
-        // Platform-specific URL form submissions
+        // URL form submissions
         document.querySelectorAll('.url-form').forEach(form => {
             form.addEventListener('submit', (e) => {
                 e.preventDefault();
@@ -24,23 +24,19 @@ class VideoDownloader {
             });
         });
 
-        // Format selection with debugging
+        // Simple click handler for all selections
         document.addEventListener('click', (e) => {
-            console.log('Click detected on:', e.target);
-            const formatOption = e.target.closest('.format-option');
+            const simpleOption = e.target.closest('.simple-option');
             const qualityOption = e.target.closest('.quality-option');
             
-            if (formatOption) {
-                console.log('Format option clicked:', formatOption);
-                this.handleFormatSelection(formatOption);
-            }
-            if (qualityOption && !formatOption) {
-                console.log('Quality option clicked:', qualityOption);
+            if (simpleOption) {
+                this.handleSimpleSelection(simpleOption);
+            } else if (qualityOption) {
                 this.handleQualitySelection(qualityOption);
             }
         });
 
-        // Download button click
+        // Download button
         document.getElementById('download-btn').addEventListener('click', () => {
             this.startDownload();
         });
@@ -66,66 +62,75 @@ class VideoDownloader {
         document.getElementById('error-display').style.display = 'none';
     }
 
-    handleFormatSelection(element) {
-        console.log('Handling format selection for:', element);
-        console.log('Element dataset:', element.dataset);
+    handleSimpleSelection(element) {
+        const step = element.dataset.step;
+        const value = element.dataset.value;
         
-        // Remove active class from all format options
-        document.querySelectorAll('.format-option').forEach(opt => opt.classList.remove('selected'));
+        if (step === 'format') {
+            // Clear previous format selections
+            document.querySelectorAll('[data-step="format"]').forEach(opt => opt.classList.remove('selected'));
+            element.classList.add('selected');
+            
+            this.selectedFormat = value;
+            this.selectedQuality = null;
+            this.selectedFileFormat = null;
+            
+            // Show quality section
+            this.showQualityOptions();
+            
+            // Hide file format section
+            document.getElementById('file-format-section').style.display = 'none';
+        }
         
-        // Add active class to selected option
-        element.classList.add('selected');
-        
-        this.selectedFormat = element.dataset.format;
-        console.log('Selected format:', this.selectedFormat);
-        
-        // Show quality section
-        this.showQualityOptions();
-        
-        // Reset quality and file format selections
-        this.selectedQuality = null;
-        this.selectedFileFormat = null;
-        document.getElementById('download-btn').disabled = true;
+        this.updateDownloadButton();
+        this.updateStatus();
     }
     
     handleQualitySelection(element) {
-        console.log('Handling quality selection for:', element);
-        console.log('Quality dataset:', element.dataset);
+        const isFileFormat = element.classList.contains('file-format-option');
         
-        // Remove active class from all quality options
-        document.querySelectorAll('.quality-option').forEach(opt => opt.classList.remove('selected'));
+        if (isFileFormat) {
+            // Handle file format selection
+            document.querySelectorAll('.file-format-option').forEach(opt => opt.classList.remove('selected'));
+            element.classList.add('selected');
+            
+            this.selectedFileFormat = element.dataset.format;
+        } else {
+            // Handle quality selection
+            document.querySelectorAll('.quality-option:not(.file-format-option)').forEach(opt => opt.classList.remove('selected'));
+            element.classList.add('selected');
+            
+            this.selectedQuality = element.dataset.quality;
+            
+            // Show file format section
+            this.showFileFormatOptions();
+        }
         
-        // Add active class to selected option
-        element.classList.add('selected');
-        
-        this.selectedQuality = element.dataset.quality;
-        console.log('Selected quality:', this.selectedQuality);
-        
-        // Show file format section
-        this.showFileFormatOptions();
+        this.updateDownloadButton();
+        this.updateStatus();
     }
     
-    handleFileFormatSelection(element) {
-        console.log('Handling file format selection for:', element);
-        console.log('File format dataset:', element.dataset);
-        
-        // Remove active class from all file format options
-        document.querySelectorAll('.file-format-option').forEach(opt => opt.classList.remove('selected'));
-        
-        // Add active class to selected option
-        element.classList.add('selected');
-        
-        this.selectedFileFormat = element.dataset.format;
-        console.log('Selected file format:', this.selectedFileFormat);
-        
-        // Enable download button
+    updateDownloadButton() {
         const downloadBtn = document.getElementById('download-btn');
-        downloadBtn.disabled = false;
-        console.log('Download button enabled, current selections:', {
-            format: this.selectedFormat,
-            quality: this.selectedQuality,
-            fileFormat: this.selectedFileFormat
-        });
+        const isComplete = this.selectedFormat && this.selectedQuality && this.selectedFileFormat;
+        downloadBtn.disabled = !isComplete;
+    }
+    
+    updateStatus() {
+        const statusDiv = document.getElementById('selection-status');
+        const steps = [];
+        
+        if (this.selectedFormat) steps.push('Format ✓');
+        if (this.selectedQuality) steps.push('Quality ✓');
+        if (this.selectedFileFormat) steps.push('File Format ✓');
+        
+        if (steps.length === 3) {
+            statusDiv.textContent = 'Ready to download!';
+            statusDiv.style.color = 'rgba(0, 255, 0, 0.8)';
+        } else {
+            statusDiv.textContent = `Complete: ${steps.join(', ')} | Missing: ${3 - steps.length} step(s)`;
+            statusDiv.style.color = 'rgba(255, 255, 255, 0.6)';
+        }
     }
 
     showVideoInfo(videoData) {
@@ -168,55 +173,43 @@ class VideoDownloader {
     }
     
     showQualityOptions() {
-        console.log('Showing quality options for format:', this.selectedFormat);
         const qualitySection = document.getElementById('quality-section');
         const qualityOptions = document.getElementById('quality-options');
-        
-        if (!qualitySection || !qualityOptions) {
-            console.error('Quality section elements not found');
-            return;
-        }
         
         qualityOptions.innerHTML = '';
         
         if (this.selectedFormat === 'video') {
-            // Video quality options
             const videoQualities = [
-                { quality: '2160', label: '4K (2160p)', formatId: 'best[height<=2160]' },
-                { quality: '1440', label: '2K (1440p)', formatId: 'best[height<=1440]' },
-                { quality: '1080', label: 'Full HD (1080p)', formatId: 'best[height<=1080]' },
-                { quality: '720', label: 'HD (720p)', formatId: 'best[height<=720]' },
-                { quality: '480', label: 'SD (480p)', formatId: 'best[height<=480]' },
-                { quality: '360', label: 'Low (360p)', formatId: 'best[height<=360]' },
-                { quality: '240', label: 'Very Low (240p)', formatId: 'best[height<=240]' },
-                { quality: '144', label: 'Mobile (144p)', formatId: 'best[height<=144]' }
+                { label: '4K (2160p)', formatId: 'best[height<=2160]' },
+                { label: '2K (1440p)', formatId: 'best[height<=1440]' },
+                { label: '1080p', formatId: 'best[height<=1080]' },
+                { label: '720p', formatId: 'best[height<=720]' },
+                { label: '480p', formatId: 'best[height<=480]' },
+                { label: '360p', formatId: 'best[height<=360]' },
+                { label: '240p', formatId: 'best[height<=240]' },
+                { label: '144p', formatId: 'best[height<=144]' }
             ];
             
             videoQualities.forEach(quality => {
                 const option = document.createElement('div');
-                option.className = 'quality-option';
+                option.className = 'quality-option simple-option';
                 option.dataset.quality = quality.formatId;
                 option.textContent = quality.label;
-                option.addEventListener('click', () => this.handleQualitySelection(option));
                 qualityOptions.appendChild(option);
             });
         } else if (this.selectedFormat === 'audio') {
-            // Audio quality options
             const audioQualities = [
-                { quality: 'bestaudio', label: 'Best Quality', formatId: 'bestaudio' },
-                { quality: '320', label: '320 kbps', formatId: 'bestaudio[abr<=320]' },
-                { quality: '256', label: '256 kbps', formatId: 'bestaudio[abr<=256]' },
-                { quality: '192', label: '192 kbps', formatId: 'bestaudio[abr<=192]' },
-                { quality: '128', label: '128 kbps', formatId: 'bestaudio[abr<=128]' },
-                { quality: '96', label: '96 kbps', formatId: 'bestaudio[abr<=96]' }
+                { label: 'Best', formatId: 'bestaudio' },
+                { label: '320k', formatId: 'bestaudio[abr<=320]' },
+                { label: '192k', formatId: 'bestaudio[abr<=192]' },
+                { label: '128k', formatId: 'bestaudio[abr<=128]' }
             ];
             
             audioQualities.forEach(quality => {
                 const option = document.createElement('div');
-                option.className = 'quality-option';
+                option.className = 'quality-option simple-option';
                 option.dataset.quality = quality.formatId;
                 option.textContent = quality.label;
-                option.addEventListener('click', () => this.handleQualitySelection(option));
                 qualityOptions.appendChild(option);
             });
         }
@@ -231,39 +224,34 @@ class VideoDownloader {
         fileFormatOptions.innerHTML = '';
         
         if (this.selectedFormat === 'video') {
-            // Video file formats
             const videoFormats = [
-                { format: 'mp4', label: 'MP4', desc: 'Most compatible' },
-                { format: 'webm', label: 'WebM', desc: 'High quality' },
-                { format: 'mkv', label: 'MKV', desc: 'Best quality' },
-                { format: '3gp', label: '3GP', desc: 'Mobile friendly' },
-                { format: 'avi', label: 'AVI', desc: 'Classic format' }
+                { format: 'mp4', label: 'MP4' },
+                { format: 'webm', label: 'WebM' },
+                { format: '3gp', label: '3GP' },
+                { format: 'avi', label: 'AVI' },
+                { format: 'mkv', label: 'MKV' }
             ];
             
             videoFormats.forEach(format => {
                 const option = document.createElement('div');
-                option.className = 'quality-option file-format-option';
+                option.className = 'quality-option file-format-option simple-option';
                 option.dataset.format = format.format;
-                option.innerHTML = `<strong>${format.label}</strong><br><small>${format.desc}</small>`;
-                option.addEventListener('click', () => this.handleFileFormatSelection(option));
+                option.textContent = format.label;
                 fileFormatOptions.appendChild(option);
             });
         } else if (this.selectedFormat === 'audio') {
-            // Audio file formats
             const audioFormats = [
-                { format: 'mp3', label: 'MP3', desc: 'Most compatible' },
-                { format: 'm4a', label: 'M4A', desc: 'High quality' },
-                { format: 'ogg', label: 'OGG', desc: 'Open source' },
-                { format: 'wav', label: 'WAV', desc: 'Uncompressed' },
-                { format: 'flac', label: 'FLAC', desc: 'Lossless' }
+                { format: 'mp3', label: 'MP3' },
+                { format: 'm4a', label: 'M4A' },
+                { format: 'ogg', label: 'OGG' },
+                { format: 'wav', label: 'WAV' }
             ];
             
             audioFormats.forEach(format => {
                 const option = document.createElement('div');
-                option.className = 'quality-option file-format-option';
+                option.className = 'quality-option file-format-option simple-option';
                 option.dataset.format = format.format;
-                option.innerHTML = `<strong>${format.label}</strong><br><small>${format.desc}</small>`;
-                option.addEventListener('click', () => this.handleFileFormatSelection(option));
+                option.textContent = format.label;
                 fileFormatOptions.appendChild(option);
             });
         }
@@ -394,29 +382,11 @@ class VideoDownloader {
     }
 
     async startDownload() {
-        console.log('Starting download with selections:', {
-            format: this.selectedFormat,
-            quality: this.selectedQuality,
-            fileFormat: this.selectedFileFormat
-        });
-
-        // More lenient validation - check if basic selections are made
-        if (!this.selectedFormat) {
-            this.showError('Please select a format (Video or Audio)');
+        if (!this.selectedFormat || !this.selectedQuality || !this.selectedFileFormat) {
+            this.showError('Please complete all 3 selection steps');
             return;
         }
 
-        if (!this.selectedQuality) {
-            this.showError('Please select a quality option');
-            return;
-        }
-
-        if (!this.selectedFileFormat) {
-            this.showError('Please select a file format');
-            return;
-        }
-
-        // Get the current video URL from the active tab
         const activeForm = document.querySelector('.tab-pane.active .url-form');
         const url = activeForm.querySelector('.video-url').value.trim();
 
@@ -425,15 +395,12 @@ class VideoDownloader {
             return;
         }
 
-        console.log('All validations passed, starting download...');
         this.showDownloadProgress();
 
         try {
             const response = await fetch('/download_video', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     url: url,
                     format_id: this.selectedQuality,
@@ -452,7 +419,6 @@ class VideoDownloader {
             this.trackDownloadProgress();
 
         } catch (error) {
-            console.error('Download error:', error);
             this.showError(error.message);
             this.hideDownloadProgress();
         }
