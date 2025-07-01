@@ -24,13 +24,19 @@ class VideoDownloader {
             });
         });
 
-        // Format selection
+        // Format selection with debugging
         document.addEventListener('click', (e) => {
-            if (e.target.closest('.format-option')) {
-                this.handleFormatSelection(e.target.closest('.format-option'));
+            console.log('Click detected on:', e.target);
+            const formatOption = e.target.closest('.format-option');
+            const qualityOption = e.target.closest('.quality-option');
+            
+            if (formatOption) {
+                console.log('Format option clicked:', formatOption);
+                this.handleFormatSelection(formatOption);
             }
-            if (e.target.closest('.quality-option')) {
-                this.handleQualitySelection(e.target.closest('.quality-option'));
+            if (qualityOption && !formatOption) {
+                console.log('Quality option clicked:', qualityOption);
+                this.handleQualitySelection(qualityOption);
             }
         });
 
@@ -61,6 +67,9 @@ class VideoDownloader {
     }
 
     handleFormatSelection(element) {
+        console.log('Handling format selection for:', element);
+        console.log('Element dataset:', element.dataset);
+        
         // Remove active class from all format options
         document.querySelectorAll('.format-option').forEach(opt => opt.classList.remove('selected'));
         
@@ -68,6 +77,7 @@ class VideoDownloader {
         element.classList.add('selected');
         
         this.selectedFormat = element.dataset.format;
+        console.log('Selected format:', this.selectedFormat);
         
         // Show quality section
         this.showQualityOptions();
@@ -144,8 +154,14 @@ class VideoDownloader {
     }
     
     showQualityOptions() {
+        console.log('Showing quality options for format:', this.selectedFormat);
         const qualitySection = document.getElementById('quality-section');
         const qualityOptions = document.getElementById('quality-options');
+        
+        if (!qualitySection || !qualityOptions) {
+            console.error('Quality section elements not found');
+            return;
+        }
         
         qualityOptions.innerHTML = '';
         
