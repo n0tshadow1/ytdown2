@@ -26,7 +26,7 @@
 }
 
 body {
-    background: linear-gradient(135deg, var(--dark-blue-900) 0%, var(--dark-blue-800) 50%, var(--dark-blue-700) 100%);
+    background: linear-gradient(135deg, #000000 0%, #0c1e3f 30%, #1e3a8a 70%, #000000 100%);
     background-attachment: fixed;
     min-height: 100vh;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -34,11 +34,11 @@ body {
 }
 
 .card {
-    border: 2px solid var(--glass-border);
+    border: 2px solid rgba(30, 58, 138, 0.3);
     border-radius: var(--border-radius);
     box-shadow: var(--shadow-medium);
     backdrop-filter: blur(20px);
-    background: var(--glass-bg);
+    background: rgba(0, 0, 0, 0.4);
     transition: var(--transition);
     overflow: hidden;
     position: relative;
@@ -62,8 +62,8 @@ body {
 }
 
 .card-header {
-    background: rgba(30, 58, 138, 0.2);
-    border-bottom: 1px solid var(--glass-border);
+    background: rgba(0, 0, 0, 0.6);
+    border-bottom: 1px solid rgba(30, 58, 138, 0.4);
     backdrop-filter: blur(30px);
     padding: 1.5rem;
     position: relative;
@@ -237,7 +237,8 @@ body {
 /* Video info section styling */
 #video-info {
     animation: fadeIn 0.5s ease-in;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(30, 58, 138, 0.4);
     border-radius: var(--border-radius);
     padding: 1.5rem;
     margin-top: 1.5rem;
@@ -256,7 +257,8 @@ body {
 
 /* Download options styling */
 .download-options {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(30, 58, 138, 0.3);
     border-radius: var(--border-radius);
     padding: 1.5rem;
     margin-top: 1rem;
@@ -270,8 +272,8 @@ body {
 }
 
 .format-option {
-    background: rgba(255, 255, 255, 0.1);
-    border: 2px solid transparent;
+    background: rgba(0, 0, 0, 0.5);
+    border: 2px solid rgba(30, 58, 138, 0.4);
     border-radius: var(--border-radius);
     padding: 1rem;
     cursor: pointer;
@@ -279,13 +281,15 @@ body {
 }
 
 .format-option:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(30, 58, 138, 0.3);
+    border-color: rgba(30, 58, 138, 0.6);
     transform: translateY(-2px);
 }
 
 .format-option.selected {
-    border-color: rgba(102, 126, 234, 0.8);
-    background: rgba(102, 126, 234, 0.2);
+    border-color: rgba(59, 130, 246, 0.8);
+    background: rgba(59, 130, 246, 0.3);
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
 }
 
 .format-option h6 {
@@ -302,7 +306,8 @@ body {
 
 /* Quality selector */
 .quality-selector {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(30, 58, 138, 0.3);
     border-radius: var(--border-radius);
     padding: 1rem;
     margin-bottom: 1rem;
@@ -316,8 +321,8 @@ body {
 }
 
 .quality-option {
-    background: rgba(255, 255, 255, 0.1);
-    border: 2px solid transparent;
+    background: rgba(0, 0, 0, 0.6);
+    border: 2px solid rgba(30, 58, 138, 0.4);
     border-radius: 8px;
     padding: 0.5rem 1rem;
     text-align: center;
@@ -329,12 +334,14 @@ body {
 }
 
 .quality-option:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(30, 58, 138, 0.4);
+    border-color: rgba(30, 58, 138, 0.6);
 }
 
 .quality-option.selected {
     background: var(--gradient-primary);
-    border-color: rgba(102, 126, 234, 0.8);
+    border-color: rgba(59, 130, 246, 0.8);
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
 }
 
 /* Download progress styling */

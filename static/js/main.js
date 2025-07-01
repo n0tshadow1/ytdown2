@@ -105,6 +105,7 @@ class VideoDownloader {
     }
 
     showVideoInfo(videoData) {
+        console.log('Showing video info:', videoData);
         this.hideError();
         this.videoData = videoData;
         
@@ -128,6 +129,10 @@ class VideoDownloader {
         this.selectedQuality = null;
         this.selectedFileFormat = null;
         
+        // Reset format options visual state
+        document.querySelectorAll('.format-option').forEach(opt => opt.classList.remove('selected'));
+        document.querySelectorAll('.quality-option').forEach(opt => opt.classList.remove('selected'));
+        
         // Hide quality and file format sections initially
         document.getElementById('quality-section').style.display = 'none';
         document.getElementById('file-format-section').style.display = 'none';
@@ -135,6 +140,7 @@ class VideoDownloader {
 
         // Show video info section
         document.getElementById('video-info').style.display = 'block';
+        console.log('Video info section should now be visible');
     }
     
     showQualityOptions() {
