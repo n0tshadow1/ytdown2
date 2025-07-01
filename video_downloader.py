@@ -181,15 +181,16 @@ class VideoDownloader:
             
             # Handle audio-only downloads
             if audio_only:
-                if file_format and file_format != 'mp3':
+                if file_format and file_format not in ['mp3', 'm4a']:
                     ydl_opts['postprocessors'] = [{
                         'key': 'FFmpegExtractAudio',
                         'preferredcodec': file_format,
                         'preferredquality': '192' if file_format == 'mp3' else 'best',
                     }]
             else:
-                # Handle video downloads with specific format conversion
-                if file_format and file_format != 'mp4':
+                # Handle video downloads - only convert if absolutely necessary
+                # Skip conversion for common formats to avoid errors
+                if file_format and file_format not in ['mp4', 'webm', 'mkv']:
                     ydl_opts['postprocessors'] = [{
                         'key': 'FFmpegVideoConvertor',
                         'preferedformat': file_format,
