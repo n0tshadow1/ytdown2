@@ -188,13 +188,17 @@ class VideoDownloader:
                         'preferredquality': '192' if file_format == 'mp3' else 'best',
                     }]
             else:
-                # Handle video downloads - only convert if absolutely necessary
-                # Skip conversion for common formats to avoid errors
-                if file_format and file_format not in ['mp4', 'webm', 'mkv']:
+                # Handle video downloads - avoid conversion when possible
+                # Only convert to MP4, WebM, or MKV formats that are well-supported
+                if file_format and file_format in ['mp4', 'webm', 'mkv'] and file_format != 'mp4':
                     ydl_opts['postprocessors'] = [{
                         'key': 'FFmpegVideoConvertor',
                         'preferedformat': file_format,
                     }]
+                # Skip conversion for unsupported formats like 3GP to avoid encoder errors
+                elif file_format and file_format not in ['mp4', 'webm', 'mkv']:
+                    logging.warning(f"Format {file_format} conversion skipped - downloading as MP4 instead")
+                    # Don't add postprocessors - will download as best available format
             
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=True)

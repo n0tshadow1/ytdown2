@@ -124,7 +124,24 @@ The simple architecture makes it suitable for containerization or traditional se
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes
+
+### July 01, 2025 - Quality Selection & Download Fixes
+- Fixed quality selection click handlers in JavaScript
+- Installed FFmpeg for video processing capabilities  
+- Added automatic browser download when processing completes
+- Improved file finding logic to handle special characters in filenames
+- Enhanced format selection to avoid unnecessary conversions
+- Added intelligent format fallbacks for better compatibility
+
+### Current Status
+- Video analysis working for YouTube, Instagram, Facebook
+- Quality selection interface fully functional
+- Download process working with MP4, WebM, MKV formats
+- Automatic file download to user's device implemented
+- Format conversion limited to well-supported codecs
+
 ## Changelog
 
 Changelog:
-- July 01, 2025. Initial setup
+- July 01, 2025. Initial setup and quality selection fixes
