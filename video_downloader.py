@@ -188,17 +188,29 @@ class VideoDownloader:
                         'preferredquality': '192' if file_format == 'mp3' else 'best',
                     }]
             else:
-                # Handle video downloads - avoid conversion when possible
-                # Only convert to MP4, WebM, or MKV formats that are well-supported
-                if file_format and file_format in ['mp4', 'webm', 'mkv'] and file_format != 'mp4':
-                    ydl_opts['postprocessors'] = [{
-                        'key': 'FFmpegVideoConvertor',
-                        'preferedformat': file_format,
-                    }]
-                # Skip conversion for unsupported formats like 3GP to avoid encoder errors
-                elif file_format and file_format not in ['mp4', 'webm', 'mkv']:
-                    logging.warning(f"Format {file_format} conversion skipped - downloading as MP4 instead")
-                    # Don't add postprocessors - will download as best available format
+                # Handle video downloads with format conversion
+                if file_format and file_format != 'mp4':
+                    # Configure FFmpeg path explicitly
+                    ydl_opts['ffmpeg_location'] = '/nix/store/3zc5jbvqzrn8zmva4fx5p0nh4yy03wk4-ffmpeg-6.1.1-bin/bin/ffmpeg'
+                    
+                    # Add video converter with proper codec settings
+                    if file_format == '3gp':
+                        ydl_opts['postprocessors'] = [{
+                            'key': 'FFmpegVideoConvertor',
+                            'preferedformat': '3gp',
+                            'preferedcodec': 'h263',
+                        }]
+                    elif file_format == 'avi':
+                        ydl_opts['postprocessors'] = [{
+                            'key': 'FFmpegVideoConvertor',
+                            'preferedformat': 'avi',
+                            'preferedcodec': 'libxvid',
+                        }]
+                    else:
+                        ydl_opts['postprocessors'] = [{
+                            'key': 'FFmpegVideoConvertor',
+                            'preferedformat': file_format,
+                        }]
             
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=True)
