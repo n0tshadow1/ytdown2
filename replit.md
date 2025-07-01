@@ -1,0 +1,130 @@
+# Video Downloader Application
+
+## Overview
+
+This is a Flask-based web application that allows users to download videos from various platforms including YouTube, Instagram, Facebook, Twitter, and TikTok. The application provides a user-friendly interface for analyzing video URLs, selecting download formats, and downloading content with real-time progress tracking.
+
+## System Architecture
+
+The application follows a simple three-tier architecture:
+
+1. **Frontend**: HTML templates with Bootstrap UI framework and vanilla JavaScript
+2. **Backend**: Flask web server with REST API endpoints
+3. **Core Service**: yt-dlp library for video processing and downloading
+
+The architecture prioritizes simplicity and maintainability, using minimal dependencies to reduce complexity while providing robust video downloading capabilities.
+
+## Key Components
+
+### Backend Components
+
+1. **Flask Application (`app.py`)**
+   - Main web server handling HTTP requests
+   - RESTful API endpoints for video analysis and downloading
+   - Session management with flash messaging
+   - Global progress tracking dictionary
+
+2. **Video Downloader Service (`video_downloader.py`)**
+   - Wrapper around yt-dlp library
+   - Video metadata extraction
+   - Format processing and filtering
+   - Temporary file management
+
+3. **Application Entry Point (`main.py`)**
+   - Simple application launcher
+   - Development server configuration
+
+### Frontend Components
+
+1. **Base Template (`templates/base.html`)**
+   - Bootstrap dark theme integration
+   - Font Awesome icons
+   - Responsive navigation and layout structure
+
+2. **Main Interface (`templates/index.html`)**
+   - URL input form with validation
+   - Loading states and error handling
+   - Video information display (incomplete in current files)
+
+3. **Static Assets**
+   - Custom CSS (`static/css/style.css`) for enhanced styling
+   - JavaScript (`static/js/main.js`) for interactive functionality
+
+## Data Flow
+
+1. **Video Analysis Flow**:
+   - User submits video URL through web form
+   - Frontend sends POST request to `/get_video_info` endpoint
+   - Backend uses VideoDownloader to extract metadata via yt-dlp
+   - Video information and available formats returned to frontend
+
+2. **Download Flow**:
+   - User selects desired format and initiates download
+   - POST request sent to `/download_video` endpoint (implementation incomplete)
+   - Backend processes download with progress tracking
+   - File served to user or download link provided
+
+3. **Progress Tracking**:
+   - Global `download_progress` dictionary stores download states
+   - Threading used for background download processing
+   - Real-time progress updates (implementation in progress)
+
+## External Dependencies
+
+### Python Libraries
+- **Flask**: Web framework for HTTP handling and templating
+- **yt-dlp**: Core video downloading and metadata extraction
+- **tempfile**: Temporary file management for downloads
+- **logging**: Application logging and debugging
+
+### Frontend Libraries
+- **Bootstrap**: UI framework with dark theme variant
+- **Font Awesome**: Icon library for enhanced visual elements
+- **Vanilla JavaScript**: Client-side interactivity without framework dependencies
+
+### Platform Support
+- YouTube, Instagram, Facebook, Twitter, TikTok
+- Extensible to any platform supported by yt-dlp
+
+## Deployment Strategy
+
+The application is configured for Replit deployment:
+
+- **Host**: `0.0.0.0` for external access
+- **Port**: `5000` (standard Flask development port)
+- **Debug Mode**: Enabled for development
+- **Environment Variables**: Session secret key configuration
+- **Static File Serving**: Flask's built-in static file handling
+
+The simple architecture makes it suitable for containerization or traditional server deployment with minimal configuration changes.
+
+## Technical Decisions
+
+### Why Flask over FastAPI/Django
+- **Problem**: Need lightweight web framework for video downloading service
+- **Solution**: Flask chosen for simplicity and minimal overhead
+- **Rationale**: Straightforward request handling without complex ORM or async requirements
+
+### Why yt-dlp over youtube-dl
+- **Problem**: Reliable video downloading from multiple platforms
+- **Solution**: yt-dlp as actively maintained fork with broader platform support
+- **Benefits**: Regular updates, better error handling, extensive format options
+
+### Why Vanilla JavaScript over Framework
+- **Problem**: Interactive frontend without complexity overhead
+- **Solution**: Plain JavaScript with Bootstrap for styling
+- **Rationale**: Minimal bundle size, no build process, easier maintenance
+
+### Temporary File Management
+- **Problem**: Handle downloaded files without persistent storage
+- **Solution**: Python's tempfile module for automatic cleanup
+- **Benefits**: Automatic cleanup, system-appropriate temp directories
+
+## User Preferences
+
+Preferred communication style: Simple, everyday language.
+
+## Changelog
+
+Changelog:
+- July 01, 2025. Initial setup

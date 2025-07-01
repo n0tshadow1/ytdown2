@@ -1,0 +1,140 @@
+/* Custom styles for the video downloader */
+.card {
+    border: none;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.card-header {
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+#video-thumbnail {
+    max-height: 200px;
+    object-fit: cover;
+}
+
+.progress {
+    height: 1.5rem;
+}
+
+.fab, .fas {
+    transition: color 0.3s ease;
+}
+
+.fab:hover, .fas:hover {
+    opacity: 0.8;
+}
+
+/* Loading animation */
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.pulse {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .container {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+    
+    #video-thumbnail {
+        margin-bottom: 1rem;
+    }
+    
+    .col-6 {
+        margin-bottom: 1rem;
+    }
+}
+
+/* Error states */
+.is-invalid {
+    border-color: var(--bs-danger);
+}
+
+/* Success states */
+.is-valid {
+    border-color: var(--bs-success);
+}
+
+/* Custom button styles */
+.btn-outline-success {
+    border-color: var(--bs-success);
+    color: var(--bs-success);
+}
+
+.btn-outline-success:hover {
+    background-color: var(--bs-success);
+    border-color: var(--bs-success);
+    color: white;
+}
+
+/* Footer */
+footer {
+    margin-top: auto;
+}
+
+/* Navbar brand */
+.navbar-brand {
+    font-weight: 600;
+}
+
+/* Form styling */
+.form-label {
+    font-weight: 500;
+}
+
+/* Progress bar styling */
+.progress-bar {
+    transition: width 0.3s ease;
+}
+
+/* Video info section */
+#video-info {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Platform icons */
+.fa-youtube { color: #FF0000; }
+.fa-instagram { color: #E4405F; }
+.fa-facebook { color: #1877F2; }
+.fa-twitter { color: #1DA1F2; }
+.fa-tiktok { color: #000000; }
+.fa-vimeo { color: #1AB7EA; }
+
+/* Download status */
+#download-status {
+    font-size: 0.9rem;
+}
+
+/* Error message styling */
+#error-display {
+    border-left: 4px solid var(--bs-danger);
+}
+
+/* Success message styling */
+.alert-success {
+    border-left: 4px solid var(--bs-success);
+}
