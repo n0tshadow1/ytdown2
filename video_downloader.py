@@ -183,32 +183,23 @@ class VideoDownloader:
                     # Configure FFmpeg path explicitly
                     ydl_opts['ffmpeg_location'] = '/nix/store/3zc5jbvqzrn8zmva4fx5p0nh4yy03wk4-ffmpeg-6.1.1-bin/bin/ffmpeg'
                     
-                    # Add video converter with proper codec settings for each format
-                    postprocessor_config = {
-                        'key': 'FFmpegVideoConvertor',
-                        'preferedformat': file_format,
-                    }
-                    
-                    # Set specific codecs for different formats
+                    # Add video converter with proper format conversion
                     if file_format == '3gp':
-                        postprocessor_config.update({
-                            'preferedcodec': 'h263',
-                            'preferedquality': None,  # Use default
-                        })
-                    elif file_format == 'avi':
-                        postprocessor_config.update({
-                            'preferedcodec': 'libx264',  # More compatible than libxvid
-                        })
-                    elif file_format == 'webm':
-                        postprocessor_config.update({
-                            'preferedcodec': 'libvpx-vp9',
-                        })
-                    elif file_format == 'mkv':
-                        postprocessor_config.update({
-                            'preferedcodec': 'libx264',
-                        })
-                    
-                    ydl_opts['postprocessors'] = [postprocessor_config]
+                        # For 3GP, use specific options with available codecs
+                        ydl_opts['postprocessors'] = [{
+                            'key': 'FFmpegVideoConvertor',
+                            'preferedformat': '3gp',
+                        }]
+                        # Add additional options for 3GP conversion using available codecs
+                        ydl_opts['postprocessor_args'] = {
+                            'ffmpeg': ['-c:v', 'h263', '-c:a', 'aac', '-ar', '22050', '-ac', '1', '-b:v', '64k', '-b:a', '12k']
+                        }
+                    else:
+                        # For other formats, use standard conversion
+                        ydl_opts['postprocessors'] = [{
+                            'key': 'FFmpegVideoConvertor',
+                            'preferedformat': file_format,
+                        }]
             
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=True)
