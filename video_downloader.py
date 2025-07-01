@@ -23,25 +23,38 @@ class VideoDownloader:
             try:
                 # Extract the height from the selector
                 height = int(requested_format_id.split('<=')[1].split(']')[0])
-                logging.info(f"Looking for video format <= {height}p")
+                logging.info(f"Looking for video format <= {height}p from available formats")
                 
-                # Build a more robust format selector that tries multiple approaches
-                format_selectors = [
-                    # Try best video format with height constraint
-                    f'best[height<={height}][ext=mp4]',
-                    f'best[height<={height}][ext=webm]', 
-                    f'best[height<={height}]',
-                    # Fallback with lower quality if requested isn't available
-                    'best[ext=mp4]' if height >= 360 else 'worst[ext=mp4]',
-                    'best[ext=webm]' if height >= 360 else 'worst[ext=webm]',
-                    # Final fallbacks
-                    'best' if height >= 360 else 'worst'
-                ]
+                # Look through available formats to find the best match
+                if available_formats:
+                    video_formats = [f for f in available_formats if f and f.get('height') and f.get('vcodec') and f.get('vcodec') != 'none']
+                    
+                    # Find formats that match the height constraint
+                    suitable_formats = [f for f in video_formats if f.get('height') <= height]
+                    
+                    if suitable_formats:
+                        # Sort by quality (highest first) and pick the best one
+                        suitable_formats.sort(key=lambda x: (x.get('height', 0), x.get('tbr', 0)), reverse=True)
+                        best_format = suitable_formats[0]
+                        
+                        logging.info(f"Found suitable format: {best_format['format_id']} ({best_format['height']}p)")
+                        
+                        # For better quality, try to combine with audio
+                        if height >= 480:
+                            return f"{best_format['format_id']}+bestaudio/{best_format['format_id']}"
+                        else:
+                            return best_format['format_id']
+                    else:
+                        # No suitable format found, get the lowest quality available
+                        if video_formats:
+                            video_formats.sort(key=lambda x: x.get('height', 0))
+                            fallback_format = video_formats[0]
+                            logging.info(f"No format <= {height}p available, using: {fallback_format['format_id']} ({fallback_format['height']}p)")
+                            return fallback_format['format_id']
                 
-                # Return a combined selector that yt-dlp can try in order
-                combined_selector = '/'.join(format_selectors)
-                logging.info(f"Using robust format selector: {combined_selector}")
-                return combined_selector
+                # Fallback to generic selector if no specific formats found
+                logging.info(f"Using generic format selector for {height}p")
+                return f'best[height<={height}]'
                 
             except (ValueError, IndexError) as e:
                 logging.error(f"Error parsing format selector: {e}")
@@ -155,22 +168,32 @@ class VideoDownloader:
     def download_video(self, url, format_id=None, audio_only=False, file_format=None, progress_hook=None):
         """Download video with specified format"""  
         try:
-            # First get video info to find available formats
-            info_result = self.get_video_info(url)
-            if 'error' in info_result:
-                return info_result
+            # Get detailed format information directly from yt-dlp
+            ydl_opts_info = {
+                'quiet': True,
+                'no_warnings': True,
+                'extract_flat': False,
+            }
             
-            # Configure format selection based on quality and file format preferences
-            if audio_only:
-                selected_format = self._select_best_format(info_result.get('formats', []), format_id, True)
-            else:
-                # For video downloads, select the best matching format
-                selected_format = self._select_best_format(info_result.get('formats', []), format_id, False)
+            with yt_dlp.YoutubeDL(ydl_opts_info) as ydl:
+                info = ydl.extract_info(url, download=False)
+                if not info:
+                    return {'error': 'Could not extract video information'}
                 
-            logging.info(f"Selected format: {selected_format} for requested: {format_id}")
-            
-            # Keep the generic selector - let yt-dlp handle the quality constraint
-            # Don't override with 'best' as this loses the quality preference
+                # Get the raw formats from yt-dlp for better format selection
+                raw_formats = info.get('formats', [])
+                
+                # Configure format selection based on quality and file format preferences
+                if audio_only:
+                    selected_format = self._select_best_format(raw_formats, format_id, True)
+                else:
+                    # For video downloads, select the best matching format using raw format data
+                    selected_format = self._select_best_format(raw_formats, format_id, False)
+                    
+                logging.info(f"Selected format: {selected_format} for requested: {format_id}")
+                
+                # Store video info for later use
+                video_title = info.get('title', 'download')
             
             # Set download options
             ydl_opts = {
