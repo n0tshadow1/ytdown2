@@ -149,24 +149,14 @@ class VideoDownloader:
     def download_video(self, url, format_id=None, audio_only=False, file_format=None, progress_hook=None):
         """Download video with specified format"""  
         try:
-            # Use intelligent format selection with fallbacks
+            # Configure format selection based on quality and file format preferences
             if audio_only:
                 selected_format = format_id if format_id else 'bestaudio/best'
             else:
-                # For video, use the requested format with fallbacks
+                # For video downloads, be more specific about quality
                 if format_id and 'best[height<=' in format_id:
-                    # Extract height and create fallback chain
-                    try:
-                        height = int(format_id.split('<=')[1].split(']')[0])
-                        fallback_formats = [
-                            format_id,  # Original request
-                            f'best[height<={height}]',  # Ensure format consistency
-                            f'best[height<={max(480, height//2)}]',  # Lower quality fallback
-                            'best',  # Ultimate fallback
-                        ]
-                        selected_format = '/'.join(fallback_formats)
-                    except (ValueError, IndexError):
-                        selected_format = format_id if format_id else 'best'
+                    # Use exact format selector for quality
+                    selected_format = format_id
                 else:
                     selected_format = format_id if format_id else 'best'
             
@@ -193,24 +183,32 @@ class VideoDownloader:
                     # Configure FFmpeg path explicitly
                     ydl_opts['ffmpeg_location'] = '/nix/store/3zc5jbvqzrn8zmva4fx5p0nh4yy03wk4-ffmpeg-6.1.1-bin/bin/ffmpeg'
                     
-                    # Add video converter with proper codec settings
+                    # Add video converter with proper codec settings for each format
+                    postprocessor_config = {
+                        'key': 'FFmpegVideoConvertor',
+                        'preferedformat': file_format,
+                    }
+                    
+                    # Set specific codecs for different formats
                     if file_format == '3gp':
-                        ydl_opts['postprocessors'] = [{
-                            'key': 'FFmpegVideoConvertor',
-                            'preferedformat': '3gp',
+                        postprocessor_config.update({
                             'preferedcodec': 'h263',
-                        }]
+                            'preferedquality': None,  # Use default
+                        })
                     elif file_format == 'avi':
-                        ydl_opts['postprocessors'] = [{
-                            'key': 'FFmpegVideoConvertor',
-                            'preferedformat': 'avi',
-                            'preferedcodec': 'libxvid',
-                        }]
-                    else:
-                        ydl_opts['postprocessors'] = [{
-                            'key': 'FFmpegVideoConvertor',
-                            'preferedformat': file_format,
-                        }]
+                        postprocessor_config.update({
+                            'preferedcodec': 'libx264',  # More compatible than libxvid
+                        })
+                    elif file_format == 'webm':
+                        postprocessor_config.update({
+                            'preferedcodec': 'libvpx-vp9',
+                        })
+                    elif file_format == 'mkv':
+                        postprocessor_config.update({
+                            'preferedcodec': 'libx264',
+                        })
+                    
+                    ydl_opts['postprocessors'] = [postprocessor_config]
             
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=True)
