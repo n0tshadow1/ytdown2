@@ -185,14 +185,14 @@ class VideoDownloader:
                     
                     # Add video converter with proper format conversion
                     if file_format == '3gp':
-                        # For 3GP, use specific options with available codecs
+                        # For 3GP, use most basic conversion that works
                         ydl_opts['postprocessors'] = [{
                             'key': 'FFmpegVideoConvertor',
                             'preferedformat': '3gp',
                         }]
-                        # Add additional options for 3GP conversion using available codecs
+                        # Minimal conversion args for maximum compatibility
                         ydl_opts['postprocessor_args'] = {
-                            'ffmpeg': ['-c:v', 'h263', '-c:a', 'aac', '-ar', '22050', '-ac', '1', '-b:v', '64k', '-b:a', '12k']
+                            'ffmpeg': ['-c:v', 'libx264', '-c:a', 'aac', '-f', '3gp']
                         }
                     else:
                         # For other formats, use standard conversion
@@ -224,7 +224,7 @@ class VideoDownloader:
                     
                     # Take the most recently modified file
                     for file_name, file_path in temp_files_with_path:
-                        if os.path.isfile(file_path) and file_name.lower().endswith(('.mp4', '.webm', '.mkv', '.avi', '.mp3', '.m4a')):
+                        if os.path.isfile(file_path) and file_name.lower().endswith(('.mp4', '.webm', '.mkv', '.avi', '.3gp', '.mp3', '.m4a')):
                             found_file = file_path
                             logging.info(f"Found downloaded file: {found_file}")
                             break
