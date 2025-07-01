@@ -20,10 +20,32 @@ class VideoDownloader:
         
         # For video downloads with generic selectors like best[height<=1080]
         if requested_format_id and 'best[height<=' in requested_format_id:
-            # Keep the generic selector and let yt-dlp handle it directly
-            # This ensures yt-dlp selects the best format within the height constraint
-            logging.info(f"Using generic format selector: {requested_format_id}")
-            return requested_format_id
+            try:
+                # Extract the height from the selector
+                height = int(requested_format_id.split('<=')[1].split(']')[0])
+                logging.info(f"Looking for video format <= {height}p")
+                
+                # Build a more robust format selector that tries multiple approaches
+                format_selectors = [
+                    # Try best video format with height constraint
+                    f'best[height<={height}][ext=mp4]',
+                    f'best[height<={height}][ext=webm]', 
+                    f'best[height<={height}]',
+                    # Fallback with lower quality if requested isn't available
+                    'best[ext=mp4]' if height >= 360 else 'worst[ext=mp4]',
+                    'best[ext=webm]' if height >= 360 else 'worst[ext=webm]',
+                    # Final fallbacks
+                    'best' if height >= 360 else 'worst'
+                ]
+                
+                # Return a combined selector that yt-dlp can try in order
+                combined_selector = '/'.join(format_selectors)
+                logging.info(f"Using robust format selector: {combined_selector}")
+                return combined_selector
+                
+            except (ValueError, IndexError) as e:
+                logging.error(f"Error parsing format selector: {e}")
+                return 'best'
         
         # For specific format IDs, check if available
         if requested_format_id and available_formats:
