@@ -1,17 +1,15 @@
-// Enhanced Video Downloader JavaScript functionality
+// YTdown Video Downloader JavaScript functionality
 class VideoDownloader {
     constructor() {
-        this.currentDownloadId = null;
-        this.progressInterval = null;
         this.selectedFormat = null;
         this.selectedQuality = null;
         this.selectedFileFormat = null;
-        this.videoData = null;
         this.init();
     }
 
     init() {
         this.bindEvents();
+        console.log('YTdown VideoDownloader initialized successfully');
     }
 
     bindEvents() {
@@ -26,7 +24,6 @@ class VideoDownloader {
 
         // Format selection with debugging
         document.addEventListener('click', (e) => {
-            console.log('Click detected on:', e.target);
             const formatOption = e.target.closest('.format-option');
             const qualityOption = e.target.closest('.quality-option');
             
@@ -59,7 +56,7 @@ class VideoDownloader {
         const errorMessage = document.getElementById('error-message');
         errorMessage.textContent = message;
         errorDiv.style.display = 'block';
-        this.hideVideoInfo();
+        this.hideDownloadOptions();
     }
 
     hideError() {
@@ -128,26 +125,9 @@ class VideoDownloader {
         });
     }
 
-    showVideoInfo(videoData) {
-        console.log('Showing video info:', videoData);
+    showDownloadOptions() {
         this.hideError();
-        this.videoData = videoData;
         
-        // Update video information
-        document.getElementById('video-title').textContent = videoData.title;
-        document.getElementById('video-uploader').textContent = videoData.uploader || 'Unknown';
-        document.getElementById('video-duration').textContent = this.formatDuration(videoData.duration);
-        document.getElementById('video-views').textContent = this.formatNumber(videoData.view_count);
-        
-        // Update thumbnail
-        const thumbnail = document.getElementById('video-thumbnail');
-        if (videoData.thumbnail) {
-            thumbnail.src = videoData.thumbnail;
-            thumbnail.style.display = 'block';
-        } else {
-            thumbnail.style.display = 'none';
-        }
-
         // Reset selections
         this.selectedFormat = null;
         this.selectedQuality = null;
@@ -162,9 +142,13 @@ class VideoDownloader {
         document.getElementById('file-format-section').style.display = 'none';
         document.getElementById('download-btn').disabled = true;
 
-        // Show video info section
-        document.getElementById('video-info').style.display = 'block';
-        console.log('Video info section should now be visible');
+        // Show download options section
+        document.getElementById('download-options').style.display = 'block';
+        console.log('Download options should now be visible');
+    }
+    
+    hideDownloadOptions() {
+        document.getElementById('download-options').style.display = 'none';
     }
     
     showQualityOptions() {
@@ -271,124 +255,27 @@ class VideoDownloader {
         fileFormatSection.style.display = 'block';
     }
 
-    hideVideoInfo() {
-        document.getElementById('video-info').style.display = 'none';
-        this.hideDownloadProgress();
-    }
-
-    populateFormats(formats) {
-        const formatSelect = document.getElementById('format-select');
-        formatSelect.innerHTML = '<option value="">Select format and quality...</option>';
-
-        // Group formats by type
-        const videoFormats = formats.filter(f => f.type === 'video');
-        const audioFormats = formats.filter(f => f.type === 'audio');
-
-        // Add video formats
-        if (videoFormats.length > 0) {
-            const videoGroup = document.createElement('optgroup');
-            videoGroup.label = 'Video Formats';
-            
-            videoFormats.forEach(format => {
-                const option = document.createElement('option');
-                option.value = format.format_id;
-                option.textContent = `${format.resolution} - ${format.ext.toUpperCase()}${format.filesize ? ` (${this.formatFileSize(format.filesize)})` : ''}`;
-                videoGroup.appendChild(option);
-            });
-            
-            formatSelect.appendChild(videoGroup);
-        }
-
-        // Add audio formats
-        if (audioFormats.length > 0) {
-            const audioGroup = document.createElement('optgroup');
-            audioGroup.label = 'Audio Only';
-            
-            audioFormats.forEach(format => {
-                const option = document.createElement('option');
-                option.value = format.format_id;
-                option.dataset.audioOnly = 'true';
-                option.textContent = `${format.resolution} - ${format.ext.toUpperCase()}${format.filesize ? ` (${this.formatFileSize(format.filesize)})` : ''}`;
-                audioGroup.appendChild(option);
-            });
-            
-            formatSelect.appendChild(audioGroup);
-        }
-
-        // Reset download button
-        document.getElementById('download-btn').disabled = true;
-    }
-
-    showDownloadProgress() {
-        document.getElementById('download-progress').style.display = 'block';
-        document.getElementById('download-complete').style.display = 'none';
-        this.updateProgress(0, 'Preparing download...');
-    }
-
-    hideDownloadProgress() {
-        document.getElementById('download-progress').style.display = 'none';
-        if (this.progressInterval) {
-            clearInterval(this.progressInterval);
-            this.progressInterval = null;
-        }
-    }
-
-    updateProgress(percent, status) {
-        const progressBar = document.getElementById('progress-bar');
-        const statusElement = document.getElementById('download-status');
-        
-        progressBar.style.width = `${percent}%`;
-        progressBar.textContent = `${Math.round(percent)}%`;
-        statusElement.textContent = status;
-
-        if (percent >= 100) {
-            progressBar.classList.remove('progress-bar-animated');
-        }
-    }
-
     async analyzeVideo(url) {
-        console.log('Analyzing video URL:', url);
-        
         if (!url) {
             this.showError('Please enter a valid URL');
             return;
         }
 
         this.showLoading(true);
-        this.hideVideoInfo();
+        this.hideDownloadOptions();
         this.hideError();
 
         try {
-            console.log('Sending request to /get_video_info');
-            
-            const response = await fetch('/get_video_info', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ url: url })
-            });
+            // For demo purposes, show download options immediately
+            // In a real implementation, this would call a backend API
+            setTimeout(() => {
+                this.showLoading(false);
+                this.showDownloadOptions();
+            }, 2000);
 
-            console.log('Response status:', response.status);
-            
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error('Response error:', errorText);
-                throw new Error(`Server error: ${response.status}`);
-            }
-
-            const data = await response.json();
-            console.log('Video data received:', data);
-
-            if (data.error) {
-                throw new Error(data.error);
-            }
-
-            this.showVideoInfo(data);
         } catch (error) {
             console.error('Analysis error:', error);
             this.showError(error.message || 'Failed to analyze video. Please check the URL and try again.');
-        } finally {
             this.showLoading(false);
         }
     }
@@ -426,110 +313,9 @@ class VideoDownloader {
         }
 
         console.log('All validations passed, starting download...');
-        this.showDownloadProgress();
-
-        try {
-            const response = await fetch('/download_video', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    url: url,
-                    format_id: this.selectedQuality,
-                    audio_only: this.selectedFormat === 'audio',
-                    file_format: this.selectedFileFormat
-                })
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || 'Failed to start download');
-            }
-
-            this.currentDownloadId = data.download_id;
-            this.trackDownloadProgress();
-
-        } catch (error) {
-            console.error('Download error:', error);
-            this.showError(error.message);
-            this.hideDownloadProgress();
-        }
-    }
-
-    trackDownloadProgress() {
-        if (!this.currentDownloadId) return;
-
-        this.progressInterval = setInterval(async () => {
-            try {
-                const response = await fetch(`/download_progress/${this.currentDownloadId}`);
-                const data = await response.json();
-
-                if (data.error) {
-                    this.showError(data.error);
-                    this.hideDownloadProgress();
-                    return;
-                }
-
-                if (data.status === 'downloading') {
-                    this.updateProgress(data.progress || 0, 'Downloading...');
-                } else if (data.status === 'finished' || data.progress >= 100) {
-                    this.updateProgress(100, 'Download completed!');
-                    this.showDownloadComplete();
-                    clearInterval(this.progressInterval);
-                } else if (data.status === 'error') {
-                    this.showError(data.error || 'Download failed');
-                    this.hideDownloadProgress();
-                    clearInterval(this.progressInterval);
-                }
-
-            } catch (error) {
-                console.error('Error tracking progress:', error);
-            }
-        }, 1000);
-    }
-
-    showDownloadComplete() {
-        const completeDiv = document.getElementById('download-complete');
-        const downloadLink = document.getElementById('download-link');
         
-        downloadLink.href = `/download_file/${this.currentDownloadId}`;
-        completeDiv.style.display = 'block';
-    }
-
-    // Utility functions
-    formatDuration(seconds) {
-        if (!seconds) return 'Unknown';
-        
-        const hours = Math.floor(seconds / 3600);
-        const minutes = Math.floor((seconds % 3600) / 60);
-        const secs = seconds % 60;
-
-        if (hours > 0) {
-            return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-        } else {
-            return `${minutes}:${secs.toString().padStart(2, '0')}`;
-        }
-    }
-
-    formatNumber(num) {
-        if (!num) return '0';
-        
-        if (num >= 1000000) {
-            return (num / 1000000).toFixed(1) + 'M';
-        } else if (num >= 1000) {
-            return (num / 1000).toFixed(1) + 'K';
-        }
-        return num.toString();
-    }
-
-    formatFileSize(bytes) {
-        if (!bytes) return '';
-        
-        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(1024));
-        return `${(bytes / Math.pow(1024, i)).toFixed(1)} ${sizes[i]}`;
+        // For demo purposes, show success message
+        this.showError('Demo mode: Download would start with ' + this.selectedQuality + ' quality in ' + this.selectedFileFormat + ' format. Real implementation requires server-side processing.');
     }
 }
 
@@ -537,7 +323,6 @@ class VideoDownloader {
 document.addEventListener('DOMContentLoaded', () => {
     try {
         new VideoDownloader();
-        console.log('VideoDownloader initialized successfully');
     } catch (error) {
         console.error('Error initializing VideoDownloader:', error);
     }
@@ -547,15 +332,4 @@ document.addEventListener('DOMContentLoaded', () => {
 window.addEventListener('unhandledrejection', (event) => {
     console.error('Unhandled promise rejection:', event.reason);
     event.preventDefault();
-});
-
-// Handle page navigation
-window.addEventListener('beforeunload', (e) => {
-    // Warn user if download is in progress
-    const progressDiv = document.getElementById('download-progress');
-    if (progressDiv && progressDiv.style.display !== 'none') {
-        e.preventDefault();
-        e.returnValue = 'Download in progress. Are you sure you want to leave?';
-        return e.returnValue;
-    }
 });
