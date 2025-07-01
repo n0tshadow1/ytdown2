@@ -45,7 +45,15 @@ class VideoDownloader:
                     if suitable_formats:
                         # Sort by quality and return the best one
                         suitable_formats.sort(key=lambda x: x.get('height', 0) if x else 0, reverse=True)
+                        logging.info(f"Found format for {height}p: {suitable_formats[0]['format_id']} (actual: {suitable_formats[0]['height']}p)")
                         return suitable_formats[0]['format_id']
+                    else:
+                        # If no suitable format found, get the lowest quality available
+                        video_formats = [f for f in available_formats if f and f.get('height') and f.get('vcodec') != 'none']
+                        if video_formats:
+                            video_formats.sort(key=lambda x: x.get('height', 0) if x else 0)
+                            logging.info(f"No format <= {height}p found, using lowest: {video_formats[0]['format_id']} (actual: {video_formats[0]['height']}p)")
+                            return video_formats[0]['format_id']
                 except (ValueError, IndexError):
                     pass
         
@@ -149,16 +157,19 @@ class VideoDownloader:
     def download_video(self, url, format_id=None, audio_only=False, file_format=None, progress_hook=None):
         """Download video with specified format"""  
         try:
+            # First get video info to find available formats
+            info_result = self.get_video_info(url)
+            if 'error' in info_result:
+                return info_result
+            
             # Configure format selection based on quality and file format preferences
             if audio_only:
-                selected_format = format_id if format_id else 'bestaudio/best'
+                selected_format = self._select_best_format(info_result.get('formats', []), format_id, True)
             else:
-                # For video downloads, be more specific about quality
-                if format_id and 'best[height<=' in format_id:
-                    # Use exact format selector for quality
-                    selected_format = format_id
-                else:
-                    selected_format = format_id if format_id else 'best'
+                # For video downloads, select the best matching format
+                selected_format = self._select_best_format(info_result.get('formats', []), format_id, False)
+                
+            logging.info(f"Selected format: {selected_format} for requested: {format_id}")
             
             # Set download options
             ydl_opts = {
