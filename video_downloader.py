@@ -198,30 +198,41 @@ class VideoDownloader:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=True)
                 
-                # Find the downloaded file
+                # Find the downloaded file - get all files in temp directory
                 title = info.get('title', 'download')
-                ext = 'mp3' if audio_only else info.get('ext', 'mp4')
+                temp_files = []
                 
-                # Look for the actual downloaded file
-                expected_filename = os.path.join(self.temp_dir, f"{title}.{ext}")
+                try:
+                    temp_files = os.listdir(self.temp_dir)
+                    logging.info(f"Files in temp directory: {temp_files}")
+                except Exception as e:
+                    logging.error(f"Error listing temp directory: {e}")
                 
-                # Sometimes the filename might be slightly different
-                if not os.path.exists(expected_filename):
-                    # Search for any file in temp directory
-                    for file in os.listdir(self.temp_dir):
-                        if file.startswith(title[:20]):  # Match first 20 chars of title
-                            expected_filename = os.path.join(self.temp_dir, file)
+                found_file = None
+                
+                # Look for downloaded files (newest files first)
+                if temp_files:
+                    # Sort by modification time (newest first)
+                    temp_files_with_path = [(f, os.path.join(self.temp_dir, f)) for f in temp_files]
+                    temp_files_with_path.sort(key=lambda x: os.path.getmtime(x[1]), reverse=True)
+                    
+                    # Take the most recently modified file
+                    for file_name, file_path in temp_files_with_path:
+                        if os.path.isfile(file_path) and file_name.lower().endswith(('.mp4', '.webm', '.mkv', '.avi', '.mp3', '.m4a')):
+                            found_file = file_path
+                            logging.info(f"Found downloaded file: {found_file}")
                             break
                 
-                if os.path.exists(expected_filename):
+                if found_file and os.path.exists(found_file):
                     return {
                         'status': 'success',
-                        'filename': expected_filename,
+                        'filename': found_file,
                         'title': title,
-                        'filesize': os.path.getsize(expected_filename)
+                        'filesize': os.path.getsize(found_file)
                     }
                 else:
-                    return {'error': 'Downloaded file not found'}
+                    logging.error(f"No suitable file found in temp directory. Available files: {temp_files}")
+                    return {'error': f'Downloaded file not found. Available files: {", ".join(temp_files) if temp_files else "none"}'}
                     
         except Exception as e:
             logging.error(f"Error downloading video: {str(e)}")
