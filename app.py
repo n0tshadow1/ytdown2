@@ -73,8 +73,8 @@ def download_video():
                 except (ValueError, TypeError):
                     pass
             elif d['status'] == 'finished':
-                download_progress[download_id]['progress'] = 100
-                download_progress[download_id]['status'] = 'finished'
+                download_progress[download_id]['progress'] = 90  # Still need conversion
+                download_progress[download_id]['status'] = 'converting'
                 download_progress[download_id]['filename'] = d['filename']
             elif d['status'] == 'error':
                 download_progress[download_id]['status'] = 'error'

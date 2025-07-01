@@ -459,6 +459,8 @@ class VideoDownloader {
 
                 if (data.status === 'downloading') {
                     this.updateProgress(data.progress || 0, 'Downloading...');
+                } else if (data.status === 'converting') {
+                    this.updateProgress(data.progress || 90, 'Converting to selected format...');
                 } else if (data.status === 'finished' || data.progress >= 100) {
                     this.updateProgress(100, 'Download completed!');
                     this.showDownloadComplete();
