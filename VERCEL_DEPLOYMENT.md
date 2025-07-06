@@ -5,10 +5,11 @@
 ### 1. Prepare Your Repository
 1. Push all your code to GitHub (including the new Vercel config files)
 2. Make sure all files are committed:
-   - `vercel.json` (Vercel configuration)
-   - `vercel_requirements.txt` (Python dependencies)
+   - `vercel.json` (Vercel configuration pointing to app_vercel.py)
+   - `vercel_requirements.txt` (Python dependencies - simplified for serverless)
    - `.vercelignore` (Files to exclude from deployment)
-   - `wsgi.py` (WSGI entry point)
+   - `app_vercel.py` (Simplified Flask app for serverless)
+   - `video_downloader_vercel.py` (Simplified downloader for serverless)
 
 ### 2. Deploy to Vercel
 1. Go to [vercel.com](https://vercel.com) and sign up/login with GitHub
