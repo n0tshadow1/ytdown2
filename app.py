@@ -132,5 +132,8 @@ def download_file(download_id):
         logging.error(f"Error downloading file: {str(e)}")
         return jsonify({'error': f'Failed to download file: {str(e)}'}), 500
 
+# For Vercel deployment
+app.wsgi_app = app.wsgi_app
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

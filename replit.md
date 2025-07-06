@@ -126,17 +126,19 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
-### July 06, 2025 - Minimal Design Overhaul
-- Completely redesigned website with minimal, clean aesthetic
-- Removed heavy gradients, shadows, and complex animations
-- Simplified color scheme to basic dark theme with subtle accents
-- Reduced visual clutter and excessive styling elements
-- Moved "Playlist coming soon" text to center of navigation bar
-- Removed duplicate YTdown heading from card header
-- Simplified footer text to just "YTdown - Video Downloader"
-- Streamlined CSS from 620 lines to 306 lines (50% reduction)
-- Implemented clean, flat design with subtle borders and minimal shadows
-- Focused on typography and spacing over decorative elements
+### July 06, 2025 - Vercel Deployment & Design Updates
+- **Made project fully compatible with Vercel hosting platform**
+- Created vercel.json configuration for serverless deployment
+- Added vercel_requirements.txt with essential dependencies
+- Created WSGI entry point and deployment documentation
+- Added .vercelignore file to optimize deployment
+- **Design improvements for balanced visual appeal**
+- Added animated black and blue gradient background
+- Reduced navbar height and made it more compact
+- Brought back visual elements with balanced approach (not too minimal)
+- Enhanced navigation tabs with gradients and hover effects
+- Improved button styling with gradients and transforms
+- Made footer more compact while retaining full functionality
 
 ### July 01, 2025 - Quality Selection & Download Fixes
 - Fixed quality selection click handlers in JavaScript
