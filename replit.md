@@ -126,6 +126,18 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### July 06, 2025 - Minimal Design Overhaul
+- Completely redesigned website with minimal, clean aesthetic
+- Removed heavy gradients, shadows, and complex animations
+- Simplified color scheme to basic dark theme with subtle accents
+- Reduced visual clutter and excessive styling elements
+- Moved "Playlist coming soon" text to center of navigation bar
+- Removed duplicate YTdown heading from card header
+- Simplified footer text to just "YTdown - Video Downloader"
+- Streamlined CSS from 620 lines to 306 lines (50% reduction)
+- Implemented clean, flat design with subtle borders and minimal shadows
+- Focused on typography and spacing over decorative elements
+
 ### July 01, 2025 - Quality Selection & Download Fixes
 - Fixed quality selection click handlers in JavaScript
 - Installed FFmpeg for video processing capabilities  
@@ -146,8 +158,15 @@ Preferred communication style: Simple, everyday language.
 - Automatic file download to user's device implemented
 - Format conversion working for multiple output formats
 - Quality selection now properly downloads 480p, 720p, 1080p as selected
+- **NEW**: Clean, minimal design with reduced visual complexity
+
+## User Preferences
+
+Preferred communication style: Simple, everyday language.
+Preferred design style: Minimal, clean, not heavy or cluttered.
 
 ## Changelog
 
 Changelog:
+- July 06, 2025. Minimal design overhaul for cleaner interface
 - July 01, 2025. Initial setup and quality selection fixes
