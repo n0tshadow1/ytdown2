@@ -310,13 +310,20 @@ body {
 
 /* Footer */
 footer {
-    background-color: rgba(30, 41, 59, 0.8) !important;
-    border-top: 1px solid var(--border-color);
-    margin-top: 3rem;
+    background-color: rgba(0, 0, 0, 0.8) !important;
+    border-top: 1px solid rgba(59, 130, 246, 0.3);
+    margin-top: 2rem;
+    padding: 0.5rem 0 !important;
 }
 
 footer p {
-    color: rgba(255, 255, 255, 0.7) !important;
+    color: rgba(255, 255, 255, 0.6) !important;
+    font-size: 0.8rem;
+    line-height: 1.2;
+}
+
+footer .container {
+    padding: 0 1rem;
 }
 
 /* Loading */
